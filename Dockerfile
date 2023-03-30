@@ -17,7 +17,7 @@ FROM ${utility_prefix}-run:${utility_ver}
 
 # Copy across from the build container.
 WORKDIR /home/node/app
-COPY --from=common-build-stage --chown=node:node /home/node/app ./
+COPY --from=build --chown=node:node /home/node/app ./
 
 USER node
 
