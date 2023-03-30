@@ -1,0 +1,31 @@
+[
+    {
+        "title": "Measurement result",
+        "key": "qif_measurement_result",
+        "mime_type" : {
+            "mime" : "application/qif",
+            "custom": {
+                "extensions": ["qif"]
+            }
+        },
+        "tags" : {
+            "process" : "boolean"
+        }
+    },
+    {
+        "title": "Technical Datasheet",
+        "key": "technical_datasheet",
+        "mime_type" : {
+            "mime" : "application/pdf"
+        },
+        "tags" : null
+    },
+    {
+        "title": "Method statement",
+        "key": "method_statement",
+        "mime_type" : {
+            "mime" : "application/pdf"
+        },
+        "tags" : null
+    }
+]

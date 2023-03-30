@@ -1,0 +1,65 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:uuid:f1b2cdbd-a770-4559-b3f8-50d7da06b31c",
+    "title": "File Service: Schema File Type Map",
+    "type": "array",
+    "description": "JSON Schema describing files are available for uploading under an asset and the properties needed",
+    "items": {
+        "type": "object",
+        "description": "A uploadable file and custom properties",
+        "properties": {
+            "title": {
+                "type": "string",
+                "description": "The friendly name to distinguish the file type, i.e. Technical Datasheet"
+            },
+            "key": {
+                "type": "string",
+                "description": "The unique name identifier to distinguish the file type, format snake_case, i.e. technical_Datasheet"
+            },
+            "mime_type": {
+                "type": "object",
+                "description": "The allowed MIME type for the file.",
+                "properties": {
+                    "mime": {
+                        "type": "string",
+                        "description": "The MIME group and MIME subtype, i.e. image/png",
+                        "pattern": "\\w+\/[-+.\\w]+"
+                    },
+                    "custom": {
+                        "type": "object",
+                        "description": "To describe custom MIME types and custom properties.",
+                        "properties": {
+                            "extensions": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": [
+                            "extensions"
+                        ],
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "mime"
+                ]
+            },
+            "tags": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "description": "Custom tags for the user to define and use. Can be null if no tags",
+                "additionalProperties": true
+            }
+        },
+        "required": [
+            "title",
+            "key",
+            "mime_type",
+            "tags"
+        ]
+    }
+}

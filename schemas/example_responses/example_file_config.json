@@ -1,0 +1,26 @@
+{
+    "device": {
+        "instance_uuid": "ba212b38-1c8d-11ed-861d-0242ac120002"
+    },
+    "filename": "kr360-datasheet-1_3_3-RC.pdf",
+    "file_uuid": "2b1cf567-a9c3-4203-bf8c-41fb2b9a9d02",
+    "friendly_title": "KR360 Robot Datasheet",
+    "friendly_description": "The datasheet for this robot supplied by KUKA.",
+    "uploader": "me1wk",
+    "timestamp": "2018-11-13T20:20:39+00:00",
+    "tags": {
+        "version": "1.3.3-RC"
+    },
+    "file_type": {
+        "title": "Technical Datasheet",
+        "key": "technical_datasheet",
+        "mime_type": {
+            "mime": "application/pdf",
+            "custom": {
+                "extensions": [
+                    "pdf"
+                ]
+            }
+        }
+    }
+}

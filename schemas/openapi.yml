@@ -1,0 +1,314 @@
+openapi: "3.0.2"
+info:
+  title: File Service
+  version: "1.0.1"
+
+security:
+  - NegotiateAuth: []
+
+paths:
+  /ping:
+    get:
+      description: "Test ping"
+      responses:
+        "200":
+          description: OK
+
+  /api/config/{schema_uuid}:
+    get:
+      description: "A list of allowed files and the metadata that can be uploaded"
+      parameters:
+        - in: path
+          name: schema_uuid
+          required: true
+          schema:
+            $ref: "#/components/schemas/schema_uuid"
+          description: The uuid of the schema that the asset/device implements, i.e. CMM schema
+      responses:
+        "200":
+          description: Successfully returned a list of files and the metadata required
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/file_type"
+
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ContentNotFound"
+
+  /api/device/{instance_uuid}:
+    get:
+      description: "A list of files that have been uploaded under the specified instance_uuid"
+      parameters:
+        - in: path
+          name: instance_uuid
+          required: true
+          schema:
+            $ref: "#/components/schemas/instance_uuid"
+          description: The uuid of the asset/device that uniquely identifies it, i.e. Ecospeed_UUID
+      responses:
+        "200":
+          description: Successfully returns a list of files and their data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/uploaded_file_overview"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ContentNotFound"
+
+  /api/file/{file_uuid}:
+    get:
+      description: "Retrieves information regarding uploaded file for specified file_uuid"
+      parameters:
+        - in: path
+          name: file_uuid
+          required: true
+          schema:
+            $ref: "#/components/schemas/file_uuid"
+          description: The UUID created by the File Service for the uploaded file
+      responses:
+        "200":
+          description: Information regarding uploaded file for specified file_uuid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/uploaded_file"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ContentNotFound"
+
+  /api/upload:
+    post:
+      description: "Upload file to specified asset with uuid"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                instance_uuid:
+                  $ref: "#/components/schemas/instance_uuid"
+                file_type_key:
+                  type: string
+                  example: 'technical_datasheet'
+                friendly_title:
+                  type: string
+                friendly_description:
+                  type: string
+                uploader:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+                tags:
+                  type: object
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "415":
+          $ref: "#/components/responses/BadFileType"
+
+  /api/download:
+    post:
+      description: "Get a temporary url to download a file from the Minio storage server"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                instance_uuid:
+                  $ref: "#/components/schemas/instance_uuid"
+                file_uuid:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: A response object containing the url and metadata of the Minio object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    description: A temporary url that is generated to download the specified file
+                    type: string
+                    format: uri
+                    example: 'https://www.sheffield.ac.uk/themes/custom/uos/images/logos/uos-crest.svg'
+                  size:
+                    description: Size of the object in bytes
+                    type: integer
+                    example: 1234
+                  metadata:
+                    type: object
+                    properties:
+                      content-type:
+                        type: string
+                        description: "Content type or mime type"
+                        example: "binary/octet-stream"
+                  versionId:
+                    nullable: true
+                    type: string
+                    description: versionId of the object.
+                  lastModified:
+                    type: string
+                    format: date-time
+                    description: Last modified timestamp
+                  etag:
+                    type: string
+                    description: The entity tag or hash of an object. Read more here, https://docs.aws.amazon.com/AmazonS3/latest/API/API_Object.html
+                    example: "95daa76d3d91187030022f93c368e4e8"
+
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/ContentNotFound"
+
+components:
+  securitySchemes:
+    NegotiateAuth:
+      type: http
+      scheme: negotiate
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    ContentNotFound:
+      description: Content Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+    BadFileType:
+      description: Unsupported file type for schema config
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+  schemas:
+    instance_uuid:
+      type: string
+      format: uuid
+      example: 'e98c8ff6-f0d0-433d-9465-c0bca35b5f14'
+    schema_uuid:
+      type: string
+      format: uuid
+      example: '5a04243c-317a-430c-a7a1-d326b12ce521'
+    file_uuid:
+      type: string
+      format: uuid
+      example: '05b70172-bd92-4fd4-8d3d-2ad5ddcb3bd0'
+    device:
+      type: object
+      properties:
+        instance_uuid:
+          $ref: "#/components/schemas/instance_uuid"
+    custom_mimetype:
+      type: object
+      properties:
+        extensions:
+          type: array
+          items:
+            type: string
+            example: '.pdf'
+      additionalProperties: true
+    mime_type:
+      type: object
+      properties:
+        mime:
+          type: string
+          example: 'application/pdf'
+        custom:
+          $ref: "#/components/schemas/custom_mimetype"
+    file_type:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Technical Datasheet'
+        key:
+          type: string
+          example: 'technical_datasheet'
+        mime_type:
+          $ref: "#/components/schemas/mime_type"
+        tags:
+          nullable: true
+          type: object
+          example: {foo: 'bar'}
+    uploaded_file_overview:
+      type: object
+      properties:
+        file_uuid:
+          type: string
+          example: '8e4200df-dffb-4eab-aefc-919209da8b25'
+        friendly_title:
+          type: string
+          example: 'KR360 Robot Datasheet'
+        timestamp:
+          type: string
+          format: 'date-time'
+          example: '2022-11-30T16:39:57+00:00'
+        file_type:
+          $ref: "#/components/schemas/file_type"
+    uploaded_file:
+      type: object
+      properties:
+        device:
+          $ref: "#/components/schemas/device"
+        filename:
+          type: string
+          example: 'kr360-datasheet-1_3_3-RC.pdf'
+        file_uuid:
+          type: string
+          example: '8e4200df-dffb-4eab-aefc-919209da8b25'
+        friendly_title:
+          type: string
+          example: 'KR360 Robot Datasheet'
+        friendly_description:
+          type: string
+          example: 'The datasheet for this robot supplied by KUKA.'
+        uploader:
+          type: string
+          example: 'me1abc'
+        timestamp:
+          type: string
+          format: 'date-time'
+          example: '2022-11-30T16:39:57+00:00'
+        file_type:
+          $ref: "#/components/schemas/file_type"
+        tags:
+          nullable: true
+          type: object
+          example: {version: '1.3.3-RC'}

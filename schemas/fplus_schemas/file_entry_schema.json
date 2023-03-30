@@ -1,0 +1,126 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:uuid:253e14b5-9bd1-4c82-8d17-41e4568c4cd3",
+    "title": "File Service: File Entry",
+    "type": "object",
+    "description": "JSON Schema describing a file that has been uploaded to the File Service Minio and its properties",
+    "$defs": {
+        "device": {
+            "type": "object",
+            "properties": {
+                "instance_uuid": {
+                    "type": "string",
+                    "format": "uuid"
+                }
+            },
+            "required": [
+                "instance_uuid"
+            ]
+        },
+        "mime_type": {
+            "type": "object",
+            "description": "The allowed MIME type for the file.",
+            "properties": {
+                "mime": {
+                    "type": "string",
+                    "description": "The MIME group and MIME subtype, i.e. image/png",
+                    "pattern": "\\w+\/[-+.\\w]+"
+                },
+                "custom": {
+                    "type": "object",
+                    "description": "To describe custom MIME types and custom properties.",
+                    "properties": {
+                        "extensions": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": [
+                        "extensions"
+                    ],
+                    "additionalProperties": true
+                }
+            },
+            "required": [
+                "mime"
+            ]
+        },
+        "file_type": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "The friendly name to distinguish the file type, i.e. Technical Datasheet"
+                },
+                "key": {
+                    "type": "string",
+                    "description": "The unique name identifier to distinguish the file type, format snake_case, i.e. technical_Datasheet"
+                },
+                "mime_type": {
+                    "$ref": "#/$defs/mime_type"
+                }
+            },
+            "required": [
+                "title",
+                "key",
+                "mime_type"
+            ]
+        }
+    },
+    "properties": {
+        "device": {
+            "$ref": "#/$defs/device"
+        },
+        "filename": {
+            "type": "string",
+            "description": "Original friendly name of the file uploaded"
+        },
+        "file_uuid": {
+            "type": "string",
+            "description": "UUID of the file stored in MinIO",
+            "format": "uuid"
+        },
+        "friendly_title": {
+            "type": "string",
+            "description": "The user defined friendly title to describe the file, i.e. KR360 Robot Datasheet"
+        },
+        "friendly_description": {
+            "type": "string",
+            "description": "User defined description when uploading file, i.e. Datasheet for XYZ. Can be empty"
+        },
+        "uploader":{
+            "type": "string",
+            "description": "Name of user/service who uploaded file, e.g. me1xx or file_ingester_1"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of when the file was uploaded to the File Service, ISO8601 format, i.e. 2018-11-13T20:20:39+00:00"
+        },
+        "tags": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "description": "Custom tags for the user to define and use. Can be null if no tags",
+            "additionalProperties": true
+        },
+        "file_type": {
+            "$ref": "#/$defs/file_type"
+        }
+    },
+    "required": [
+        "device",
+        "filename",
+        "file_uuid",
+        "friendly_title",
+        "friendly_description",
+        "uploader",
+        "timestamp",
+        "tags",
+        "file_type"
+    ],
+    "additionalProperties": true
+}
